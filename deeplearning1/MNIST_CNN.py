@@ -84,6 +84,7 @@ h_pool2=max_pool_2x2(h_conv2)
 #每一次第一个参数都是输入的图片的像素数量，第二个参数为输出像素数量
 #这一步要把压缩图像的像素展成一维像素 1*1024
 #定义全连接层的变量
+#但是这块已经做了padding的呀
 W_fc1=weight_variable([7*7*64,1024])
 b_fc1=bias_variable([1024])
 
@@ -91,6 +92,7 @@ h_pool2_flat=tf.reshape(h_pool2,[-1,7*7*64])
 h_fc1=tf.nn.relu(tf.matmul(h_pool2_flat,W_fc1)+b_fc1)
 #
 #定义fc层后的drop_out，前面卷积都是在处理图片信息，这里才连接神经层
+
 keep_prob=tf.placeholder('float')
 h_fc1_drop=tf.nn.dropout(h_fc1,keep_prob)
 #定义输出卷积
@@ -121,6 +123,7 @@ sess.run(init)
 for i in range(20000):
   batch = mnist.train.next_batch(50)
   if i%100 == 0 and i!=0:
+    #调用这个eval函数会产生这个张量的值
     train_accuracy = accuracy.eval(feed_dict={
         x:batch[0], y_: batch[1], keep_prob: 1.0})
     print( 'step:',i,'accuracy:',train_accuracy)

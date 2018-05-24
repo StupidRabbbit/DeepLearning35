@@ -15,7 +15,7 @@ BATCH_SIZE=128
 n_inputs=28
 n_steps=28
 #既然是定义一层隐藏层 那就不只是一个神经元 应该是一层有128个神经元
-#一般都是64的倍数
+#一般都是64的倍数，64，128，256 blabla
 n_hidden_units=128
 n_classes=10
 
@@ -53,7 +53,9 @@ def RNN(X,weights,biases):
     lstm_cell=tf.nn.rnn_cell.BasicLSTMCell(n_hidden_units,forget_bias=1.0,state_is_tuple=True)
     #lstm 被分成两个部分 一个状态元组（c_state,m_state) 主线状态和分线状态,RNN只有m
     #如果一次输入一行28个像素 一个时序输入28步（行） 那么就可以理解 为什么会有BATCH_SIZE个状态了
-    #因为会产生BATCH_SIZE个时序点
+    #会为BATCH_SIZE中每个样本生成一组状态列表，状态数量与timestep有关，这个里面是与28有关
+    #所以输出LSTM神经层的输出就是output[batch_size,-1,hidden_units]中间那个是timestep
+    #时序是指timestep的时序，每一个样本都会有一个时序状态列表
     _init_state=lstm_cell.zero_state(BATCH_SIZE,dtype=tf.float32)
 
     #state一刚开始是0，后面慢慢的累积，慢慢的有记忆
@@ -93,7 +95,8 @@ with tf.Session() as sess:
             print(sess.run(accuracy,feed_dict={x:batch_xs,y:batch_ys}))
         step+=1
 
-
+writer=tf.train.SummaryWriter('/path/to/log',tf.get_default_graph())
+writer.close()
 
 
 
